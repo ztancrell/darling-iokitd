@@ -154,13 +154,17 @@ IOReturn IOSurfaceRoot::createSurface(const void* inputData, void* outputData, I
 	if (!hasDisplay())
 		return KERN_FAILURE;
 		
-	CFStringRef errorString;
+	CFStringRef errorString = nullptr;
 	CFTypeRef cf = IOCFUnserializeBinary(static_cast<const char*>(inputData), inputCount, nullptr, 0, &errorString);
 
 	if (!cf)
 	{
-		CFShow(errorString);
-		CFRelease(errorString);
+		// the parser does not always say why
+		if (errorString)
+		{
+			CFShow(errorString);
+			CFRelease(errorString);
+		}
 		return KERN_INVALID_ARGUMENT;
 	}
 	if (CFGetTypeID(cf) != CFDictionaryGetTypeID())
